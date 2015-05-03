@@ -1008,6 +1008,15 @@ static struct dmi_system_id __initdata tuxedo_dmi_table[] = {
 		.driver_data = &kb_8_color_ops,
 	},
 	{
+		.ident = "Clevo P750ZM",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Notebook"),
+			DMI_MATCH(DMI_PRODUCT_NAME, "P750ZM"),
+		},
+		.callback = tuxedo_dmi_matched,
+		.driver_data = &kb_full_color_ops,
+	},
+	{
 		/* terminating NULL entry */
 	},
 };
