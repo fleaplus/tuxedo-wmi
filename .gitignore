@@ -30,3 +30,10 @@
 
 # Debug files
 *.dSYM/
+
+# Linux kernel module build items
+*.tmp_versions/
+*.cmd
+*.symvers
+*.order
+*.mod.c
