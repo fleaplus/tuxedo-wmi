@@ -751,6 +751,41 @@ static void tuxedo_wmi_notify(u32 value, void *context)
 	}
 }
 
+static ssize_t kb_bl_state_show(struct device *dev,
+				struct device_attribute *attr,
+				char *buf)
+{
+	return sprintf(buf, "%u\n", kb_backlight.state);
+}
+
+static ssize_t kb_bl_state_store(struct device *dev,
+				struct device_attribute *attr,
+				char *buf, size_t count)
+{
+	switch (buf[0]) {
+	case '1':
+		kb_backlight.ops->set_state(KB_STATE_ON);
+		break;
+	case '0':
+		kb_backlight.ops->set_state(KB_STATE_OFF);
+	}
+
+	return count;
+}
+
+static struct device_attribute kb_bl_state =
+	__ATTR(kb_bl_state, 0666, kb_bl_state_show, kb_bl_state_store);
+
+static struct attribute *kb_bl_attrs[] = {
+	&kb_bl_state.attr,
+	NULL
+};
+
+static struct attribute_group attr_group = {
+	.name = "keyboard_backlight",
+	.attrs = kb_bl_attrs
+};
+
 static int tuxedo_wmi_probe(struct platform_device *dev)
 {
 	int status;
@@ -768,12 +803,15 @@ static int tuxedo_wmi_probe(struct platform_device *dev)
 	if (kb_backlight.ops)
 		kb_backlight.ops->init();
 
-	return 0;
+	return sysfs_create_group(&dev->dev.kobj, &attr_group);
 }
 
 static int tuxedo_wmi_remove(struct platform_device *dev)
 {
 	wmi_remove_notify_handler(CLEVO_EVENT_GUID);
+
+	sysfs_remove_group(&dev->dev.kobj, &attr_group);
+
 	return 0;
 }
 
